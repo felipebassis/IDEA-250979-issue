@@ -1,0 +1,97 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven { url 'https://plugins.gradle.org/m2/' }
+        mavenCentral()
+    }
+
+}
+
+plugins {
+    id 'application'
+    id 'java-library'
+    id 'war'
+    id 'eclipse'
+    id 'idea'
+}
+
+idea {
+    module {
+        testSourceDirs += file("src/test/suites/java")
+    }
+}
+
+version = '0.0.1-SNAPSHOT'
+jar {
+    archiveBaseName = 'accountfyServer.jar'
+}
+war {
+    archiveFileName = 'accountfyServer.war'
+}
+
+sourceCompatibility = JavaVersion.VERSION_11
+
+def repositoryPath = 'lib'
+
+repositories {
+    mavenCentral()
+    //maven { url 'http://repo.e-iceblue.com/nexus/content/groups/public/' }
+    flatDir {
+        dirs "libs"
+    }
+}
+
+idea {
+    module {
+        testSourceDirs += file("src/test/integracao/java")
+    }
+}
+
+sourceSets {
+    main {
+        java.srcDirs = ["src/main/java"]
+        resources.srcDirs = ["src/main/resources"]
+    }
+    test {
+        java.srcDirs = [
+                "src/test/java",
+                "src/test/unitario/java"]
+        resources.srcDirs = ['src/test/resources']
+    }
+    integrationTest {
+        java {
+            compileClasspath += main.compileClasspath + test.compileClasspath
+            runtimeClasspath += main.runtimeClasspath + test.runtimeClasspath
+            srcDirs = [
+                    "src/test/java",
+                    "src/test/integracao/java"]
+        }
+        resources.srcDirs = ["src/test/resources"]
+    }
+    suites {
+        compileClasspath += test.compileClasspath + integrationTest.compileClasspath
+        runtimeClasspath += test.runtimeClasspath + integrationTest.runtimeClasspath
+        java.srcDirs = ["src/test/suites/java"]
+    }
+}
+
+configurations {
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+    suitesTestImplementation.extendsFrom testImplementation
+    suitesTestRuntimeOnly.extendsFrom testRuntimeOnly
+
+}
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+task integrationTest(type: Test) {
+    group = 'verification'
+    description = 'Realiza testes de integração'
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+}
+
+integrationTest.mustRunAfter test
+check.dependsOn integrationTest
