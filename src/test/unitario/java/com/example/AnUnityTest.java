@@ -8,5 +8,6 @@ public class AnUnityTest {
 	public void shouldRunTest() {
 		//Test Imports
 		SharedTestClass sharedTestClass = new SharedTestClass();
+		FooClass fooClass = new FooClass();
 	}
 }

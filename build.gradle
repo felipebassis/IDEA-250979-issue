@@ -76,14 +76,16 @@ sourceSets {
 }
 
 configurations {
-    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestImplementation.extendsFrom testImplementation, testCompile
     integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
-    suitesTestImplementation.extendsFrom testImplementation
+    suitesTestImplementation.extendsFrom testImplementation, testCompile
     suitesTestRuntimeOnly.extendsFrom testRuntimeOnly
 
 }
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    suitesImplementation sourceSets.test.output
+    suitesImplementation sourceSets.integrationTest.output
 }
 
 task integrationTest(type: Test) {
